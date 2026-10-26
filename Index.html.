@@ -1,0 +1,485 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#081426">
+  <meta name="description" content="Belanja mudah di Wahyu Store.">
+  <title>Wahyu Store - Toko Online</title>
+
+  <style>
+    :root {
+      --bg: #081426;
+      --card: #12233b;
+      --blue: #1684ff;
+      --text: #f4f7ff;
+      --muted: #9fb0c8;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      padding: 18px 5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #0d1c31;
+      border-bottom: 1px solid #20334d;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .logo {
+      color: var(--blue);
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    button, input { font: inherit; }
+
+    button {
+      cursor: pointer;
+      border: 0;
+      border-radius: 10px;
+      padding: 11px 14px;
+      background: var(--blue);
+      color: white;
+      font-weight: bold;
+    }
+
+    .cart-button { white-space: nowrap; }
+
+    .hero {
+      padding: 48px 6% 35px;
+      text-align: center;
+      background: linear-gradient(140deg, #102e54, #081426 75%);
+    }
+
+    .hero h1 {
+      font-size: clamp(30px, 7vw, 46px);
+      margin: 10px 0;
+    }
+
+    .hero p { color: var(--muted); }
+
+    .search {
+      width: 100%;
+      max-width: 470px;
+      padding: 14px;
+      border: 1px solid #304763;
+      background: #12233b;
+      color: white;
+      border-radius: 12px;
+      margin-top: 15px;
+      outline-color: var(--blue);
+    }
+
+    main {
+      max-width: 1100px;
+      margin: auto;
+      padding: 28px 5%;
+    }
+
+    .categories {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+      margin: 18px 0 24px;
+    }
+
+    .categories button {
+      background: #172a43;
+      color: #dbe8fa;
+    }
+
+    .categories button.active { background: var(--blue); }
+
+    .products {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .product {
+      background: var(--card);
+      border: 1px solid #233a57;
+      border-radius: 15px;
+      overflow: hidden;
+    }
+
+    .product img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      display: block;
+      background: #20334d;
+    }
+
+    .product-info { padding: 13px; }
+
+    .product h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    .product p {
+      color: var(--muted);
+      font-size: 13px;
+      min-height: 32px;
+    }
+
+    .price {
+      color: #69b2ff;
+      font-weight: bold;
+      margin: 12px 0;
+    }
+
+    .product button { width: 100%; }
+
+    .section-title { margin-top: 0; }
+
+    .empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      color: var(--muted);
+      padding: 30px 0;
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px 15px;
+      color: var(--muted);
+      border-top: 1px solid #20334d;
+      margin-top: 30px;
+    }
+
+    dialog {
+      width: min(92%, 480px);
+      max-height: 85vh;
+      overflow: auto;
+      background: #102039;
+      color: white;
+      border: 1px solid #34506f;
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    dialog::backdrop { background: #000a; }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      border-bottom: 1px solid #30425a;
+      padding: 12px 0;
+    }
+
+    .cart-item small { color: var(--muted); }
+
+    .cart-item button {
+      padding: 6px 10px;
+      background: #263b55;
+    }
+
+    .total {
+      font-size: 20px;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+
+    .checkout { width: 100%; }
+
+    .close {
+      background: #30425a;
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .form-input {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 9px;
+      border: 1px solid #34506f;
+      background: #081426;
+      color: white;
+    }
+
+    @media (min-width: 700px) {
+      .products { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (min-width: 950px) {
+      .products { grid-template-columns: repeat(4, 1fr); }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="logo">WAHYU STORE</div>
+    <button class="cart-button" onclick="bukaKeranjang()">
+      🛒 Keranjang (<span id="jumlah">0</span>)
+    </button>
+  </header>
+
+  <section class="hero">
+    <h1>Belanja Mudah, Harga Bersahabat!</h1>
+    <p>Temukan produk favoritmu di Wahyu Store.</p>
+    <input
+      id="cari"
+      class="search"
+      type="search"
+      placeholder="Cari nama produk..."
+      aria-label="Cari produk"
+    >
+  </section>
+
+  <main>
+    <h2 class="section-title">Produk Kami</h2>
+    <div class="categories" id="kategori"></div>
+    <div class="products" id="daftarProduk"></div>
+  </main>
+
+  <dialog id="modalKeranjang">
+    <h2>🛒 Keranjang Belanja</h2>
+    <div id="isiKeranjang"></div>
+    <div class="total" id="total"></div>
+
+    <h3>Data Pemesan</h3>
+    <input id="nama" class="form-input"
+      placeholder="Nama lengkap" autocomplete="name">
+    <textarea id="alamat" class="form-input"
+      placeholder="Alamat pengiriman" rows="3"></textarea>
+
+    <button class="checkout" onclick="checkout()">
+      Pesan melalui WhatsApp
+    </button>
+    <button class="close" onclick="tutupKeranjang()">Tutup</button>
+  </dialog>
+
+  <footer>
+    <p><strong>Wahyu Store</strong></p>
+    <p>Terima kasih sudah berbelanja!</p>
+    <small>© <span id="tahun"></span> Wahyu Store</small>
+  </footer>
+
+  <script>
+    // GANTI nomor ini dengan nomor WhatsApp toko.
+    // Gunakan kode negara 62 tanpa tanda + atau spasi.
+    const NOMOR_WA = "6281234567890";
+
+    // Ganti nama, harga, kategori, dan gambar sesuai produkmu.
+    const produk = [
+      {
+        id: 1,
+        nama: "Kaos Casual",
+        harga: 75000,
+        kategori: "Pakaian",
+        gambar: "https://placehold.co/500x500/16365c/ffffff?text=Kaos",
+        deskripsi: "Kaos nyaman untuk sehari-hari."
+      },
+      {
+        id: 2,
+        nama: "Headset Gaming",
+        harga: 125000,
+        kategori: "Elektronik",
+        gambar: "https://placehold.co/500x500/16365c/ffffff?text=Headset",
+        deskripsi: "Teman bermain game favoritmu."
+      },
+      {
+        id: 3,
+        nama: "Tas Casual",
+        harga: 95000,
+        kategori: "Aksesori",
+        gambar: "https://placehold.co/500x500/16365c/ffffff?text=Tas",
+        deskripsi: "Tas praktis untuk kegiatan harian."
+      },
+      {
+        id: 4,
+        nama: "Mouse Gaming",
+        harga: 85000,
+        kategori: "Elektronik",
+        gambar: "https://placehold.co/500x500/16365c/ffffff?text=Mouse",
+        deskripsi: "Mouse untuk kerja dan bermain."
+      }
+    ];
+
+    let keranjang = {};
+    let filterKategori = "Semua";
+
+    const rupiah = angka =>
+      new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        maximumFractionDigits: 0
+      }).format(angka);
+
+    function tampilKategori() {
+      const semua = ["Semua", ...new Set(produk.map(p => p.kategori))];
+
+      document.getElementById("kategori").innerHTML =
+        semua.map(k => `
+          <button class="${k === filterKategori ? "active" : ""}"
+            onclick="pilihKategori(${JSON.stringify(k)})">
+            ${k}
+          </button>
+        `).join("");
+    }
+
+    function tampilProduk() {
+      const kata = document.getElementById("cari")
+        .value.trim().toLowerCase();
+
+      const hasil = produk.filter(p =>
+        (filterKategori === "Semua" || p.kategori === filterKategori) &&
+        (p.nama.toLowerCase().includes(kata) ||
+         p.deskripsi.toLowerCase().includes(kata))
+      );
+
+      document.getElementById("daftarProduk").innerHTML =
+        hasil.length ? hasil.map(p => `
+          <article class="product">
+            <img src="${p.gambar}" alt="${p.nama}" loading="lazy">
+            <div class="product-info">
+              <h3>${p.nama}</h3>
+              <p>${p.deskripsi}</p>
+              <div class="price">${rupiah(p.harga)}</div>
+              <button onclick="tambah(${p.id})">
+                + Tambah ke Keranjang
+              </button>
+            </div>
+          </article>
+        `).join("") :
+        '<div class="empty">Produk tidak ditemukan.</div>';
+    }
+
+    function pilihKategori(k) {
+      filterKategori = k;
+      tampilKategori();
+      tampilProduk();
+    }
+
+    function tambah(id) {
+      keranjang[id] = (keranjang[id] || 0) + 1;
+      perbaruiKeranjang();
+    }
+
+    function ubahJumlah(id, selisih) {
+      keranjang[id] = (keranjang[id] || 0) + selisih;
+
+      if (keranjang[id] <= 0) delete keranjang[id];
+
+      perbaruiKeranjang();
+      isiModal();
+    }
+
+    function perbaruiKeranjang() {
+      const jumlah = Object.values(keranjang)
+        .reduce((a, b) => a + b, 0);
+
+      document.getElementById("jumlah").textContent = jumlah;
+    }
+
+    function isiModal() {
+      const daftar = produk.filter(p => keranjang[p.id]);
+
+      document.getElementById("isiKeranjang").innerHTML =
+        daftar.length ? daftar.map(p => `
+          <div class="cart-item">
+            <div>
+              <strong>${p.nama}</strong><br>
+              <small>${rupiah(p.harga)} × ${keranjang[p.id]}</small>
+            </div>
+            <div>
+              <button onclick="ubahJumlah(${p.id}, -1)">−</button>
+              ${keranjang[p.id]}
+              <button onclick="ubahJumlah(${p.id}, 1)">+</button>
+            </div>
+          </div>
+        `).join("") : "<p>Keranjang masih kosong.</p>";
+
+      const total = produk.reduce(
+        (sum, p) => sum + p.harga * (keranjang[p.id] || 0), 0
+      );
+
+      document.getElementById("total").textContent =
+        "Total: " + rupiah(total);
+    }
+
+    function bukaKeranjang() {
+      isiModal();
+      document.getElementById("modalKeranjang").showModal();
+    }
+
+    function tutupKeranjang() {
+      document.getElementById("modalKeranjang").close();
+    }
+
+    function checkout() {
+      const daftar = produk.filter(p => keranjang[p.id]);
+
+      if (!daftar.length) {
+        alert("Keranjang masih kosong!");
+        return;
+      }
+
+      const nama = document.getElementById("nama").value.trim();
+      const alamat = document.getElementById("alamat").value.trim();
+
+      if (!nama || !alamat) {
+        alert("Isi nama dan alamat terlebih dahulu.");
+        return;
+      }
+
+      const total = produk.reduce(
+        (sum, p) => sum + p.harga * (keranjang[p.id] || 0), 0
+      );
+
+      const rincian = daftar.map(p =>
+        `- ${p.nama} x${keranjang[p.id]} = ${rupiah(p.harga * keranjang[p.id])}`
+      ).join("\n");
+
+      const pesan =
+        `Halo Wahyu Store, saya ingin memesan:\n\n${rincian}\n\n` +
+        `Total barang: ${rupiah(total)}\n` +
+        `Nama: ${nama}\nAlamat: ${alamat}\n\n` +
+        `Mohon konfirmasi ketersediaan barang dan ongkir.`;
+
+      if (!/^62\d{8,15}$/.test(NOMOR_WA)) {
+        alert("Pemilik toko perlu mengatur nomor WhatsApp di kode website.");
+        return;
+      }
+
+      window.open(
+        "https://wa.me/" + NOMOR_WA + "?text=" +
+        encodeURIComponent(pesan),
+        "_blank"
+      );
+    }
+
+    document.getElementById("cari").addEventListener(
+      "input", tampilProduk
+    );
+
+    document.getElementById("tahun").textContent =
+      new Date().getFullYear();
+
+    tampilKategori();
+    tampilProduk();
+  </script>
+</body>
+         </html>
+         
